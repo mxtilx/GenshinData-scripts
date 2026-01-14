@@ -4,7 +4,7 @@ global.config = require('../config.json');
 
 global.getExcel = function(file) { return require(`${config.GenshinData_folder}/ExcelBinOutput/${file}.json`); }
 global.getTextMap = function(langcode) {
-	if (langcode === 'TH') {
+	if (['TH', 'RU'].includes(langcode)) {
 		return Object.assign(require(`${config.GenshinData_folder}/TextMap/TextMap${langcode}_0.json`),
 			require(`${config.GenshinData_folder}/TextMap/TextMap${langcode}_1.json`))
 	} else {
