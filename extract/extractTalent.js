@@ -155,7 +155,7 @@ let propCostItems = undefined;
 function getPropCostItems() {
 	if(propCostItems !== undefined) return propCostItems;
 	for (let [key, value] of Object.entries(xpassive[0])) {
-		if (Array.isArray(value) && value[0].count === 0) {
+		if (Array.isArray(value) && value[0] && value[0].count === 0) {
 			propCostItems = key;
 			return propCostItems;
 		}

@@ -48,7 +48,7 @@ function collateEnemy(lang) {
 		}
 
 		let des = xdescribe.find(d => d.id === obj.describeId);
-		let spe = xspecial.filter(s => s.specialNameLabID === des.specialNameLabID);
+		let spe = des.specialNameLabID !== 10001 ? xspecial.filter(s => s.specialNameLabID === des.specialNameLabID) : [];
 		let inv = findInvestigation(mon.id);
 		if(spe.length === 0) console.log('no special names for monsterId:'+mon.id);
 
