@@ -4,13 +4,18 @@ global.config = require('../config.json');
 
 global.getExcel = function(file) { return require(`${config.GenshinData_folder}/ExcelBinOutput/${file}.json`); }
 global.getTextMap = function(langcode) {
-	if (['TH', 'RU'].includes(langcode)) {
-		return Object.assign(require(`${config.GenshinData_folder}/TextMap/TextMap${langcode}_0.json`),
-			require(`${config.GenshinData_folder}/TextMap/TextMap${langcode}_1.json`))
-	} else {
-		return require(`${config.GenshinData_folder}/TextMap/TextMap${langcode}.json`);
+	const folder = `${config.GenshinData_folder}/TextMap`;
+	const files = fs.readdirSync(folder);
+	const pattern = new RegExp(`^TextMap(_Medium)?${langcode}(_\\d+)?\\.json$`);
+	
+	const matches = files.filter(f => pattern.test(f)).sort();
+	let result = {};
+	for (const file of matches) {
+		Object.assign(result, require(`${folder}/${file}`));
 	}
+	return result;
 }
+
 
 global.getReadable = function(name, langcode) { 
 	let path = `${config.GenshinData_folder}/Readable/${langcode}/${name}.txt`;
@@ -174,17 +179,22 @@ global.elementTextMapHash = ['Fire', 'Water', 'Grass', 'Electric', 'Wind', 'Ice'
 global.xplayableAvatar = xavatar.filter(obj => (obj.avatarPromoteId !== 2 || obj.id === 10000002) && obj.id !== 10000903 && !isFakeManekin(obj)); // array
 // object map that converts an avatar Id or traveler SkillDepotId to filename
 global.avatarIdToFileName = xplayableAvatar.reduce((accum, obj) => {
-	if(obj.id === 10000005) accum[obj.id] = 'aether';
-	else if(obj.id === 10000007) accum[obj.id] = 'lumine';
-	else accum[obj.id] = makeFileName(getLanguage('EN')[obj.nameTextMapHash]);
-	if(isPlayer(obj)) { // 
-		obj.candSkillDepotIds.forEach(skdeId => {
-			let trelement = elementTextMapHash[getPlayerElement(skdeId)];
-			if(trelement === undefined) return;
-			accum[skdeId] = makeFileName(getLanguage('EN')[obj.nameTextMapHash] + getLanguage('EN')[trelement]); 
-		})
+	try {
+		if(obj.id === 10000005) accum[obj.id] = 'aether';
+		else if(obj.id === 10000007) accum[obj.id] = 'lumine';
+		else accum[obj.id] = makeFileName(getLanguage('EN')[obj.nameTextMapHash]);
+		if(isPlayer(obj)) { // 
+			obj.candSkillDepotIds.forEach(skdeId => {
+				let trelement = elementTextMapHash[getPlayerElement(skdeId)];
+				if(trelement === undefined) return;
+				accum[skdeId] = makeFileName(getLanguage('EN')[obj.nameTextMapHash] + getLanguage('EN')[trelement]); 
+			})
+		}
+		return accum;
+	} catch (e) {
+		console.log(obj);
+		throw e;
 	}
-	return accum;
 }, {});
 
 // object map that converts a WeaponType into a TextMapHash
