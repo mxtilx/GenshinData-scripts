@@ -3,8 +3,6 @@ require('./global.js');
 // avatar extra info
 const xextrainfo = getExcel('FetterInfoExcelConfigData');
 
-// object map that converts player's avatar id to TextMapHash
-const playerIdToTextMapHash = { 10000005: 2329553598, 10000007: 3241049361 };
 const moraNameTextMapHash = getExcel('MaterialExcelConfigData').find(ele => ele.id === 202).nameTextMapHash;
 const xmat = getExcel('MaterialExcelConfigData');
 const xcity = getExcel('CityConfigData');
@@ -33,26 +31,27 @@ function collateCharacter(lang) {
 
 		data.id = obj.id;
 		data.name = language[obj.nameTextMapHash];
-		if (!data.name){
+		if (!data.name) {
 			console.log(data);
 			throw 'missing character name';
 		}
 
-		if(isTraveler(obj)) data.name = language[playerIdToTextMapHash[obj.id]];
-		if (!data.name){
+		if (isTraveler(obj)) data.name = language[playerIdToTextMapHash[obj.id]];
+		if (!data.name) {
+			console.log(obj);
 			console.log(data);
 			throw 'missing character name';
 		}
 
-		if(!isPlayer(obj)) {
+		if (!isPlayer(obj)) {
 			// get fullname
-			let cardimgname = obj.iconName.slice(obj.iconName.lastIndexOf('_')+1);
+			let cardimgname = obj.iconName.slice(obj.iconName.lastIndexOf('_') + 1);
 			cardimgname = `UI_AvatarIcon_${cardimgname}_Card`;
 			let charmat = xmat.find(ele => ele.icon === cardimgname);
 			data.fullname = language[charmat.nameTextMapHash];
 			if (data.fullname === data.name) delete data.fullname;
 		}
-		if(data.fullname && data.name !== data.fullname) console.log(`characters with fullname ${lang}: ${data.name} | ${data.fullname}`);
+		if (data.fullname && data.name !== data.fullname) console.log(`characters with fullname ${lang}: ${data.name} | ${data.fullname}`);
 
 		// description
 		data.description = global.sanitizer(language[obj.descTextMapHash], replaceNonBreakSpace, replaceNewline, removeHashtag);
@@ -76,16 +75,16 @@ function collateCharacter(lang) {
 		data.qualityType = obj.qualityType;
 		data.rarity = obj.qualityType === 'QUALITY_PURPLE' ? 4 : 5;
 
-		if(!isTraveler(obj)) {
+		if (!isTraveler(obj)) {
 			// console.log(obj)
 			data.birthdaymmdd = extra.infoBirthMonth + '/' + extra.infoBirthDay;
-			let birthday = new Date(Date.UTC(2000, extra.infoBirthMonth-1, extra.infoBirthDay));
+			let birthday = new Date(Date.UTC(2000, extra.infoBirthMonth - 1, extra.infoBirthDay));
 			data.birthday = birthday.toLocaleString(global.localeMap[lang], { timeZone: 'UTC', month: 'long', day: 'numeric' });
 		} else {
 			data.birthdaymmdd = '';
 			data.birthday = '';
 		}
-		if(isTraveler(obj) && (data.birthmonth || data.birthday)) console.log('warning player has birthday');
+		if (isTraveler(obj) && (data.birthmonth || data.birthday)) console.log('warning player has birthday');
 
 		data.affiliation = isTraveler(obj) ? '' : language[extra.avatarNativeTextMapHash];
 		data.elementType = global.mapElementToType[getLanguage('EN')[extra.avatarVisionBeforTextMapHash].toLowerCase()];
@@ -94,12 +93,12 @@ function collateCharacter(lang) {
 		// data.elementafter = language[extra.avatarVisionAfterTextMapHash];
 		data.constellation = language[extra.avatarConstellationBeforTextMapHash];
 		// data.constellationafter = language[extra.avatarConstellationAfterTextMapHash];
-		if(obj.id === 10000030) data.constellation = language[extra.avatarConstellationAfterTextMapHash]; // Zhongli exception
+		if (obj.id === 10000030) data.constellation = language[extra.avatarConstellationAfterTextMapHash]; // Zhongli exception
 		data.title = language[extra.avatarTitleTextMapHash] || "";
 		data.associationType = extra.avatarAssocType.replace('_TYPE', '');
-		if(associationToCityId[data.associationType] === undefined)
+		if (associationToCityId[data.associationType] === undefined)
 			console.log(`character missing cityId for association ${data.associationType}`);
-		else if(associationToCityId[data.associationType] === '')
+		else if (associationToCityId[data.associationType] === '')
 			data.region = '';
 		else {
 			data.region = language[xcity.find(ele => ele.cityId === associationToCityId[data.associationType])[getCityNameTextMapHash()]];
@@ -120,7 +119,7 @@ function collateCharacter(lang) {
 		data.substatText = language[xmanualtext.find(ele => ele.textMapId === substat).textMapContentTextMapHash];
 
 		// IMAGES
-		const name = obj.iconName.slice(obj.iconName.lastIndexOf('_')+1);
+		const name = obj.iconName.slice(obj.iconName.lastIndexOf('_') + 1);
 		data.filename_icon = obj.iconName;
 		data.filename_iconCard = `UI_AvatarIcon_${name}_Card`;
 		if (!isTraveler(obj)) {
@@ -133,18 +132,18 @@ function collateCharacter(lang) {
 
 		// get the promotion costs
 		let costs = {};
-		for(let i = 1; i <= 6; i++) {
+		for (let i = 1; i <= 6; i++) {
 			let apromo = xsubstat.find(ele => ele.avatarPromoteId === obj.avatarPromoteId && ele[getPromoteLevel()] === i);
-			costs['ascend'+i] = [{
+			costs['ascend' + i] = [{
 				id: 202,
 				name: language[moraNameTextMapHash],
 				// materialtype: "MATERIAL_ADSORBATE",
 				count: apromo.scoinCost
 			}];
-			for(let items of apromo[getPropCostItems()]) {
-				if(items.id === 0) continue;
-				if(items.id === undefined) continue;
-				costs['ascend'+i].push({
+			for (let items of apromo[getPropCostItems()]) {
+				if (items.id === 0) continue;
+				if (items.id === undefined) continue;
+				costs['ascend' + i].push({
 					id: items.id,
 					name: language[xmat.find(ele => ele.id === items.id).nameTextMapHash],
 					// materialtype: xmat.find(ele => ele.id === items.id).materialType,
@@ -167,7 +166,7 @@ function collateCharacter(lang) {
 		stats.curve.defense = obj.propGrowCurves.find(ele => ele.type === 'FIGHT_PROP_BASE_DEFENSE').growCurve;
 		stats.specialized = substat;
 		stats.promotion = xsubstat.reduce((accum, ele) => {
-			if(ele.avatarPromoteId !== obj.avatarPromoteId) return accum;
+			if (ele.avatarPromoteId !== obj.avatarPromoteId) return accum;
 			let promotelevel = ele[getPromoteLevel()] || 0;
 			accum[promotelevel] = {
 				maxlevel: ele[getPropUnlockMaxLevel()],
@@ -188,7 +187,7 @@ function collateCharacter(lang) {
 
 let cityNameTextMapHash = undefined;
 function getCityNameTextMapHash() {
-	if(cityNameTextMapHash !== undefined) return cityNameTextMapHash;
+	if (cityNameTextMapHash !== undefined) return cityNameTextMapHash;
 	for (let [key, value] of Object.entries(xcity[0])) {
 		if (typeof value === 'number' && getLanguage('EN')[value] === 'Mondstadt') {
 			cityNameTextMapHash = key;
@@ -199,7 +198,7 @@ function getCityNameTextMapHash() {
 
 let promoteLevel = undefined;
 function getPromoteLevel() {
-	if(promoteLevel !== undefined) return promoteLevel;
+	if (promoteLevel !== undefined) return promoteLevel;
 	for (let [key, value] of Object.entries(xsubstat[1])) {
 		if (typeof value === 'number' && value === 1) {
 			promoteLevel = key;
@@ -210,7 +209,7 @@ function getPromoteLevel() {
 
 let propUnlockMaxLevel = undefined;
 function getPropUnlockMaxLevel() {
-	if(propUnlockMaxLevel !== undefined) return propUnlockMaxLevel;
+	if (propUnlockMaxLevel !== undefined) return propUnlockMaxLevel;
 	for (let [key, value] of Object.entries(xsubstat[0])) {
 		if (typeof value === 'number' && value === 20) {
 			propUnlockMaxLevel = key;
@@ -221,7 +220,7 @@ function getPropUnlockMaxLevel() {
 
 let propCostItems = undefined;
 function getPropCostItems() {
-	if(propCostItems !== undefined) return propCostItems;
+	if (propCostItems !== undefined) return propCostItems;
 	for (let [key, value] of Object.entries(xsubstat[0])) {
 		if (Array.isArray(value) && value[0].count === 0) {
 			propCostItems = key;

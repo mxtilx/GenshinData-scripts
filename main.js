@@ -2,58 +2,69 @@
 exportGenshinData();
 
 function exportGenshinData() {
-	const { exportCurve, exportData } = require('./extract/global.js');
+	const { exportCurve, exportData, exportDataByLang, langcodes } = require('./extract/global.js');
 
-	// exportData('characters', require('./extract/extractCharacter.js'));
-	// exportCurve('characters', 'AvatarCurveExcelConfigData');
-	// exportData('constellations', require('./extract/extractConstellation'));
-	// exportData('talents', require('./extract/extractTalent.js'));
-	// exportData('weapons', require('./extract/extractWeapon.js'));
-	// exportCurve('weapons', 'WeaponCurveExcelConfigData')
-	// exportData('artifacts', require('./extract/extractArtifact.js'));
-	// exportData('foods', require('./extract/extractFood'));
-	// exportData('materials', require('./extract/extractMaterial')); // change: used both TextList/JumpList.
-	// exportData('domains', require('./extract/extractDomain')); // in the future use levelConfigMap to manually map to domain entrance name
-	// exportData('enemies', require('./extract/extractEnemy'));
-	// exportCurve('enemies', 'MonsterCurveExcelConfigData');
+	const tasks = [
+		// { folder: 'characters', collate: require('./extract/extractCharacter.js') },
+		// { folder: 'constellations', collate: require('./extract/extractConstellation') },
+		// { folder: 'talents', collate: require('./extract/extractTalent.js') },
+		// { folder: 'weapons', collate: require('./extract/extractWeapon.js') },
+		// { folder: 'artifacts', collate: require('./extract/extractArtifact.js') },
+		// { folder: 'foods', collate: require('./extract/extractFood') },
+		// { folder: 'materials', collate: require('./extract/extractMaterial') },
+		// { folder: 'domains', collate: require('./extract/extractDomain') },
+		// { folder: 'enemies', collate: require('./extract/extractEnemy') },
 
-	// no // //exportData('domains', require('./extract/extractDomainMonsterList')); // run only after both domains and enemies have run. sync.
+		// { folder: 'outfits', collate: require('./extract/extractOutfit') },
+		// { folder: 'windgliders', collate: require('./extract/extractWindGlider') },
+		// { folder: 'animals', collate: require('./extract/extractAnimal') },
+		// { folder: 'namecards', collate: require('./extract/extractNamecard') },
+		// { folder: 'geographies', collate: require('./extract/extractGeography') },
+		// { folder: 'achievements', collate: require('./extract/extractAchievement') },
+		// { folder: 'achievementgroups', collate: require('./extract/extractAchievementGroup') },
+		// { folder: 'adventureranks', collate: require('./extract/extractAdventureRank') },
+		// { folder: 'crafts', collate: require('./extract/extractCraft') },
+		// { folder: 'emojis', collate: require('./extract/extractEmoji') },
 
-	// exportData('outfits', require('./extract/extractOutfit'));
-	// exportData('windgliders', require('./extract/extractWindGlider'));
-	// exportData('animals', require('./extract/extractAnimal'));
-	// exportData('namecards', require('./extract/extractNamecard'));
-	// exportData('geographies', require('./extract/extractGeography'));
-	// exportData('achievements', require('./extract/extractAchievement'));
-	// exportData('achievementgroups', require('./extract/extractAchievementGroup'));
-	// exportData('adventureranks', require('./extract/extractAdventureRank'));
-	// exportData('crafts', require('./extract/extractCraft'));
-	// exportData('emojis', require('./extract/extractEmoji'));
-	// exportData('emojisets', require('./extract/extractEmojiSet')); // dont release this. waste of space
-	// exportData('voiceovers', require('./extract/extractVoiceover'));
+		// { folder: 'voiceovers', collate: require('./extract/extractVoiceover') },
+
+		// { folder: 'tcgcharactercards', collate: require('./extract/extractTcgCharacterCard') },
+		// { folder: 'tcgenemycards', collate: require('./extract/extractTcgEnemyCard') },
+		// { folder: 'tcgactioncards', collate: require('./extract/extractTcgActionCard') },
+		// { folder: 'tcgstatuseffects', collate: require('./extract/extractTcgStatusEffect') },
+		// { folder: 'tcgsummons', collate: require('./extract/extractTcgSummon') },
+		// { folder: 'tcgkeywords', collate: require('./extract/extractTcgKeyword') },
+		// { folder: 'tcgdetailedrules', collate: require('./extract/extractTcgDetailedRule') },
+		// { folder: 'tcglevelrewards', collate: require('./extract/extractTcgLevelReward') },
+		// { folder: 'tcgcardboxes', collate: require('./extract/extractTcgCardBox') },
+		// { folder: 'tcgcardbacks', collate: require('./extract/extractTcgCardBack') },
+	];
+
+	const curveTasks = [
+		{ folder: 'characters', file: 'AvatarCurveExcelConfigData' },
+		{ folder: 'weapons', file: 'WeaponCurveExcelConfigData' },
+		{ folder: 'enemies', file: 'MonsterCurveExcelConfigData' },
+	];
+
+	// Export curves (not language dependent, run once)
+	curveTasks.forEach(task => exportCurve(task.folder, task.file));
+
+	// Export data by language (optimized orchestration)
+	langcodes.forEach(lang => {
+		const starttime = Date.now();
+		console.log(`Processing language: ${lang}`);
+		tasks.forEach(task => {
+			exportDataByLang(task.folder, task.collate, lang);
+		});
+		if (tasks.length > 0) console.log(`done ${lang} in ${(Date.now() - starttime) / 1000} seconds`);
+	});
+
+	// Special cross-data tasks if needed
+	// exportDataByLang('domains', require('./extract/extractDomainMonsterList'), 'EN'); // example of sync/special run
+
 	// writeVOFile();
-
-	// exportData('tcgcharactercards', require('./extract/extractTcgCharacterCard'));
-	// exportData('tcgenemycards', require('./extract/extractTcgEnemyCard'));
-	// exportData('tcgactioncards', require('./extract/extractTcgActionCard'));
-	// exportData('tcgstatuseffects', require('./extract/extractTcgStatusEffect'));
-	// exportData('tcgsummons', require('./extract/extractTcgSummon'));
-	// exportData('tcgkeywords', require('./extract/extractTcgKeyword'));
-	// exportData('tcgdetailedrules', require('./extract/extractTcgDetailedRule'));
-	// // // exportData('tcgsprites', require('./extract/extractTcgSprite'));
-	// // // exportData('tcgshopitems', require('./extract/extractTcgShopItem'));
-
-	// exportData('tcglevelrewards', require('./extract/extractTcgLevelReward'));
-	// exportData('tcgcardboxes', require('./extract/extractTcgCardBox'));
-	// exportData('tcgcardbacks', require('./extract/extractTcgCardBack'));
-
-
-
-
-	// // exportData('commissions', require('./extract/extractCommission'), true); // unfinished
-
-	// // exportData('fishingpoints', require('./extractFishingPoint'));  // unfinished
 }
+
 
 function writeVOFile() {
 	const fs = require('fs');
@@ -73,7 +84,7 @@ function writeVOFile() {
 		return friendFiles.concat(actionFiles);
 	});
 
-	vofiles = vofiles.map(file => file.replaceAll('/', '\\')+'.wem');
+	vofiles = vofiles.map(file => file.replaceAll('/', '\\') + '.wem');
 
 	fs.writeFileSync('./voice/db-vo.txt', vofiles.join('\n'));
 }
