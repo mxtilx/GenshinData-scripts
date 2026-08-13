@@ -4,18 +4,7 @@ const xmat = getExcel('MaterialExcelConfigData');
 const xback = getExcel('GCGDeckBackExcelConfigData');
 xback[0].id = 100;
 
-const propMap = {};
-const propMatch = {
-	// id: 'BDFMGMADMGC',
-	source: 907024502
-}
-
-// find property names
-for(let [key, value] of Object.entries(xback[0])) {
-	for(let [pkey, pval] of Object.entries(propMatch)) {
-		if (value === pval) propMap[pkey] = key;
-	}
-}
+const propSource = getPropNameWithMatch(xback, 'id', 101, 2711962534);
 
 const skipdupelog = [];
 function collate(lang) {
@@ -30,15 +19,15 @@ function collate(lang) {
 		data.description = sanitizeDescription(language[obj.descTextMapHash]);
 		data.descriptionraw = language[obj.descTextMapHash];
 
-		data.source = language[obj[propMap.source]];
+		data.source = language[obj[propSource]];
 
 		const mat = xmat.find(e => e.id === obj.itemId);
 		data.rarity = mat.rankLevel;
 		data.filename_icon = mat.icon;
-		data.filename_icon_HD = mat.icon+'_HD';
+		data.filename_icon_HD = mat.icon + '_HD';
 
 		let filename = makeUniqueFileName(obj.nameTextMapHash, accum);
-		if(filename === '') return accum;
+		if (filename === '') return accum;
 		checkDupeName(data, dupeCheck, skipdupelog);
 		accum[filename] = data;
 		if (!validName(data.name)) console.log(`${__filename.split(/[\\/]/).pop()} invalid data name: ${data.name}`);
