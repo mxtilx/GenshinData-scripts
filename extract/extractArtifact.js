@@ -14,7 +14,8 @@ function collateArtifact(lang) {
 	const xrefine = getExcel('EquipAffixExcelConfigData');
 
 	let myartifact = xsets.reduce((accum, obj) => {
-		if(obj.setIcon === '') return accum;
+		if (obj.setIcon === '' || obj.setIcon === undefined) return accum;
+
 		let setname;
 		let filename;
 		let data = {};

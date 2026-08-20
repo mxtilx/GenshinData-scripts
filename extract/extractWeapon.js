@@ -60,7 +60,7 @@ function collateWeapon(lang) {
 				let ref = xrefine.find(ele => ele.affixId === affixId+offset);
 				if(ref === undefined) break;
 				if(offset === 0) {
-					data.effectName = language[ref.nameTextMapHash]; // 1* weapons dont have effects
+					data.effectName = sanitizer(language[ref.nameTextMapHash], replaceGenderM, removeHashtag); // 1* weapons dont have effects
 					validateString(data.effectName, 'weapon.effectName', lang);
 				}
 
@@ -186,7 +186,7 @@ let propCostItems = undefined;
 function getPropCostItems() {
 	if(propCostItems !== undefined) return propCostItems;
 	for (let [key, value] of Object.entries(xsubstat[0])) {
-		if (Array.isArray(value) && value[0].count === 0) {
+		if (Array.isArray(value) && Object.keys(value[0]).length === 0) {
 			propCostItems = key;
 			return propCostItems;
 		}

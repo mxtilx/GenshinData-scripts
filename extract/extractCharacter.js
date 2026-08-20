@@ -11,14 +11,14 @@ const xsubstat = getExcel('AvatarPromoteExcelConfigData');
 const associationToCityId = {
 	'ASSOC_LIYUE': 2,
 	'ASSOC_MONDSTADT': 1,
-	'ASSOC_FATUI': 8758412,
 	'ASSOC_INAZUMA': 3,
 	'ASSOC_MAINACTOR': '',
 	'ASSOC_RANGER': '',
 	'ASSOC_SUMERU': 4,
 	ASSOC_FONTAINE: 5,
 	'ASSOC_NATLAN': 6,
-	'ASSOC_NODKRAI': 7
+	'ASSOC_NODKRAI': 7,
+	'ASSOC_FATUI': 8
 }
 
 function collateCharacter(lang) {
@@ -75,7 +75,7 @@ function collateCharacter(lang) {
 		data.qualityType = obj.qualityType;
 		data.rarity = obj.qualityType === 'QUALITY_PURPLE' ? 4 : 5;
 
-		if (!isTraveler(obj)) {
+		if (!isTraveler(obj) && !isRealManekin(obj) && !isGunTraveler(obj)) {
 			// console.log(obj)
 			data.birthdaymmdd = extra.infoBirthMonth + '/' + extra.infoBirthDay;
 			let birthday = new Date(Date.UTC(2000, extra.infoBirthMonth - 1, extra.infoBirthDay));
@@ -222,7 +222,7 @@ let propCostItems = undefined;
 function getPropCostItems() {
 	if (propCostItems !== undefined) return propCostItems;
 	for (let [key, value] of Object.entries(xsubstat[0])) {
-		if (Array.isArray(value) && value[0].count === 0) {
+		if (Array.isArray(value) && Object.keys(value[0]).length === 0) {
 			propCostItems = key;
 			return propCostItems;
 		}

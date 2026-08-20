@@ -51,6 +51,7 @@ function mapping(textmapid) { return xmanualtext.find(ele => ele.textMapId === t
 "UI_DUNGEON_ENTRY_1190", // "Sanctum of Rainbow Spirits"
 "UI_DUNGEON_ENTRY_1191", // "Derelict Masonry Dock"
 "UI_DUNGEON_ENTRY_2003", // "Thorny Crown of the Mountain Wind"
+""
 */
 function getDomainEntranceTextMapId(englishname, levelConfigMap) {
 	englishname = englishname.toLowerCase();
@@ -125,6 +126,12 @@ function getDomainEntranceTextMapId(englishname, levelConfigMap) {
 		return "UI_DUNGEON_ENTRY_1811";
 	else if(englishname.includes('flower feast'))
 		return "UI_DUNGEON_ENTRY_2003";
+	else if(englishname.includes('contemplation') || englishname.includes('hermitage') || englishname.includes('shared vision'))
+		return "UI_DUNGEON_ENTRY_2074";
+	else if(englishname.includes('ice erosion'))
+		return "UI_DUNGEON_ENTRY_2075";
+	else if(englishname.includes('cast iron') || englishname.includes('chain track') || englishname.includes('severed steel'))
+		return "UI_DUNGEON_ENTRY_2106";
 	else
 		console.log('no domain entrance mapping found for '+englishname);
 }
@@ -197,14 +204,14 @@ function collateDomain(lang) {
 		// if(obj.disorderoverride) data.disorder = obj.disorderoverride.map(d => language[d]); // fix not needed anymore
 		data.disorder = xdisorder.filter(d => d.id+'' === Object.keys(obj.levelConfigMap)[0]).map(d => language[d.descTextMapHash]).filter(ele => ele !== '' && ele !== undefined);
 		
-		data.monsterList = obj.previewMonsterList.map(monId => {
+		data.monsterList = obj.previewMonsterList ? obj.previewMonsterList.map(monId => {
 			let monObj = xmonster.find(e => e.id === monId);
 			let des = xdescribe.find(d => d.id === monObj.describeId);
 			return {
 				id: xcodex.find(e => e.describeId === monObj.describeId).id, // get codex id
 				name: language[des.nameTextMapHash],
 			}
-		});
+		}) : [];
 
 		data.filename_image = obj.entryPicPath;
 

@@ -23,7 +23,7 @@ function collateCraft(lang) {
 		data.unlockRank = obj.playerLevel;
 		data.resultCount = obj.resultItemCount;
 
-		data.moraCost = obj.scoinCost;
+		data.moraCost = obj.scoinCost || 0;
 		data.recipe = [];
 		for (let matitem of obj.materialItems) {
 			if (!matitem.id) continue;

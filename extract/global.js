@@ -64,9 +64,11 @@ const assocTextMapHash = ['ASSOC_TYPE_MONDSTADT', 'ASSOC_TYPE_LIYUE', 'ASSOC_TYP
 
 global.isPlayer = function (data) { return data.candSkillDepotIds && data.candSkillDepotIds.length !== 0; }
 global.isTraveler = function (data) { return isPlayer(data) && !isRealManekin(data) && !isFakeManekin(data); }
+global.isGunTraveler = function (data) { return data.id === 10000134 || data.id === 10000135 || data.id === 11000135; }
+global.isDiscardedGunTraveler = function (data) { return data.id === 11000047 || data.id === 11000048; }
 global.isFakeManekin = function (data) { return data.id === 10000998 || data.id === 10000999 || data.id === 11000998 || data.id === 11000999; } // UCG test character prototype
 global.isRealManekin = function (data) { return data.id === 10000117 || data.id === 10000118; }
-global.getPlayerElement = function (SkillDepotId) { let tmp = xskilldepot.find(ele => ele.id === SkillDepotId); return tmp === undefined ? tmp : tmp.talentStarName.split('_').pop(); }
+global.getPlayerElement = function (SkillDepotId) { let tmp = xskilldepot.find(ele => ele.id === SkillDepotId); return tmp && tmp.talentStarName ? tmp.talentStarName.split('_').pop() : undefined; }
 global.getLanguage = function (abbriev) { return getTextMap(abbriev.toUpperCase()); }
 global.normalizeStr = function (str) { return str.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
 global.makeFileName = function (str, lang) { return normalizeStr(str).toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -132,7 +134,7 @@ global.validateString = function (str, folder, lang, throwerror = true) {
 	const failedCharMatch = /\||{|}|#|<\/|\\n/.exec(str);
 	if (failedCharMatch) {
 		const failedChar = failedCharMatch[0];
-		if (throwerror) throw `${folder} ${lang} invalid string: Contains **invalid character** "${failedChar}"\n ${str}`;
+		if (throwerror) throw new Error(`${folder} ${lang} invalid string: Contains **invalid character** "${failedChar}"\n ${str}`);
 		return false;
 	}
 
@@ -194,11 +196,11 @@ global.elementTextMapHash = ['Fire', 'Water', 'Grass', 'Electric', 'Wind', 'Ice'
 	return accum;
 }, {});
 
-global.xplayableAvatar = xavatar.filter(obj => (obj.avatarPromoteId !== 2 || obj.id === 10000002) && obj.id !== 10000903 && !isFakeManekin(obj)); // array
+global.xplayableAvatar = xavatar.filter(obj => (obj.avatarPromoteId !== 2 || obj.id === 10000002) && obj.id !== 10000903 && !isFakeManekin(obj) && !isGunTraveler(obj) && !isDiscardedGunTraveler(obj)); // array
 // object map that converts an avatar Id or traveler SkillDepotId to filename
 global.avatarIdToFileName = xplayableAvatar.reduce((accum, obj) => {
 	try {
-		if (obj.id === 10000005) accum[obj.id] = 'aether';
+		if (obj.id === 10000005 ) accum[obj.id] = 'aether';
 		else if (obj.id === 10000007) accum[obj.id] = 'lumine';
 		else accum[obj.id] = makeFileName(getLanguage('EN')[obj.nameTextMapHash]);
 		if (isPlayer(obj)) { // 
@@ -215,7 +217,10 @@ global.avatarIdToFileName = xplayableAvatar.reduce((accum, obj) => {
 	}
 }, {});
 // object map that converts player's avatar id to TextMapHash
-global.playerIdToTextMapHash = { 10000005: 2329553086, 10000007: 3241049361 };
+global.playerIdToTextMapHash = {
+	10000005: 2329553086, 10000134: 2329553086, // aether
+	10000007: 3241049361,
+ };
 
 // object map that converts a WeaponType into a TextMapHash
 global.weaponTextMapHash = ['WEAPON_SWORD_ONE_HAND', 'WEAPON_CATALYST', 'WEAPON_CLAYMORE', 'WEAPON_BOW', 'WEAPON_POLE'].reduce((accum, str) => {
@@ -310,33 +315,6 @@ function getCityNameTextMapHash() {
 		}
 	}
 }
-
-// adds Snezhnaya manually
-if (!xcity.find(ele => getLanguage('EN')[ele[getCityNameTextMapHash()]] === 'Snezhnaya')) {
-	if (getLanguage('EN')[536575123]) {
-		const citydata = { cityId: 8758412 };
-		citydata[getCityNameTextMapHash()] = 536575123;
-		xcity.push(citydata);
-	} else {
-		getLanguage('CHS')['Snezhnaya'] = '至冬国';
-		getLanguage('CHT')['Snezhnaya'] = '至冬國';
-		getLanguage('DE')['Snezhnaya'] = 'Snezhnaya';
-		getLanguage('EN')['Snezhnaya'] = 'Snezhnaya';
-		getLanguage('ES')['Snezhnaya'] = 'Snezhnaya';
-		getLanguage('FR')['Snezhnaya'] = 'Snezhnaya';
-		getLanguage('ID')['Snezhnaya'] = 'Snezhnaya';
-		getLanguage('IT')['Snezhnaya'] = 'Snezhnaya';
-		getLanguage('JP')['Snezhnaya'] = 'スネージナヤ';
-		getLanguage('KR')['Snezhnaya'] = '스네즈나야';
-		getLanguage('PT')['Snezhnaya'] = 'Snezhnaya';
-		getLanguage('RU')['Snezhnaya'] = 'Снежная';
-		getLanguage('TH')['Snezhnaya'] = 'Snezhnaya';
-		getLanguage('TR')['Snezhnaya'] = 'Snezhnaya';
-		getLanguage('VI')['Snezhnaya'] = 'Snezhnaya';
-		xcity.push({ cityId: 8758412, cityNameTextMapHash: 'Snezhnaya' })
-	}
-}
-
 
 /* =========================================================================================== */
 

@@ -15,7 +15,7 @@ function collateAdventureRank(lang) {
 
 		data.id = obj.level;
 		data.name = obj.level+"";
-		data.exp = obj.exp;
+		data.exp = obj.exp || 0;
 		data.unlockDescription = sanitizeDescription(language[obj.unlockDescTextMapHash]);
 
 		if(obj.rewardId) {

@@ -36,7 +36,7 @@ function collateAchievement(lang) {
 		if(data.name === '') return accum;
 
 		data.achievementGroupName = language[xgoal.find(e => e.id === obj.goalId).nameTextMapHash];
-		data.achievementGroupId = obj.goalId;
+		data.achievementGroupId = obj.goalId || 0;
 		data.isHidden = obj.isShow === 'SHOWTYPE_HIDE' ? true : undefined;
 		data.sortOrder = obj.orderId;
 		data.stages = 1;
